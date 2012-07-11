@@ -33,8 +33,7 @@
 ## Path to alternate Jackrabbit configuration file. Used to change DB and DataStore type
 ## Provided examples are: repo/derby, repo/mysql, repo/filesystem-derby, repo/filesystem-mysql,
 ## repo/oracle, repo/postgresql, repo/mssql
-#artifactory.jcr.configDir=null
-<%=@db_type%>
+artifactory.jcr.configDir=<%=@db_type%>
 
 ## Name of alternate application context class to use
 #artifactory.applicationContextClass=null

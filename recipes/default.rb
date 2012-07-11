@@ -31,22 +31,23 @@ package "artifactory" do
   not_if "rpm -q artifactory"
 end
 
+@db_type="null"
+
 mysql_server = `rpm -q mysql-server | grep -v "not installed"`
 
 unless mysql_server.nil? || mysql_server == ""
-    #conn_ver=`grep JDBC_VERSION= /opt/artifactory/bin/configure.mysql.sh |awk -F "=" '{print $2}'`
-    conn_ver="5.1.18"
-    remote_file "/opt/artifactory/tomcat/lib/mysql-connector-java-#{conn_ver}.jar" do
-        source "http://repo.jfrog.org/artifactory/remote-repos/mysql/mysql-connector-java/#{conn_ver}/mysql-connector-java-#{conn_ver}.jar"
+    puts "INFO: MySQL Server found... downloading connector."
+    remote_file "/opt/artifactory/tomcat/lib/mysql-connector-java-#{node[:mysql][:conn_ver]}.jar" do
+        source "#{node[:artifactory][:repo]}/mysql/mysql-connector-java/#{node[:mysql][:conn_ver]}/mysql-connector-java-#{node[:mysql][:conn_ver]}.jar"
         mode "0644"
-        not_if {File.exists?("/opt/artifactory/tomcat/lib/mysql-connector-java-#{conn_ver}.jar")}
+        not_if {File.exists?("/opt/artifactory/tomcat/lib/mysql-connector-java-#{node[:mysql][:conn_ver]}.jar")}
     end
 
     bash "create_database" do
         user "root"
         code <<-EOH
             `service mysqld restart`
-            echo "Creating the Artifactory MySQL user and database..."
+            echo "INFO: Creating the Artifactory MySQL user and database..."
             MYSQL_LOGIN="mysql -u#{node[:mysql][:user]}"
             if [ ! -z "#{node[:mysql][:pass]}" ]; then
                 MYSQL_LOGIN="mysql -u#{node[:mysql][:user]} -p#{node[:mysql][:pass]}"
@@ -66,7 +67,7 @@ unless mysql_server.nil? || mysql_server == ""
         mode 0770
         owner "artifactory"
         #group "artifactory"
-        variables(:db_type => "artifactory.jcr.configDir=repo/filesystem-mysql")
+        variables(:db_type => "repo/filesystem-mysql")
     end
 
     template "/var/lib/artifactory/etc/repo/filesystem-mysql/repo.xml" do
