@@ -1,6 +1,8 @@
 Description
 ===========
-Installs Artifactory repository manager
+Installs Artifactory repository manager.
+For the moment only runs on CentOS. 
+If someone finds that worth and wants to contribute is welcome.
 
 Requirements
 ============
